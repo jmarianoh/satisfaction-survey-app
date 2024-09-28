@@ -64,7 +64,10 @@
                         document.getElementById('content').style.display = 'block'; // Muestra el formulario
                     }
                 })
-                .catch(error => document.getElementById('message').textContent = 'Error al verificar el token.');
+                .catch((error) => {
+                    console.log(error) 
+                    getElementById('message').textContent = 'Error al verificar el token.'}
+                );
         }
 
         // Llama a la función para verificar el token al cargar la página
