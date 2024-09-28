@@ -23,10 +23,16 @@
     </style>
 </head>
 <body>
+    <br/>
+    <div class="Imagen">
+        <img src="./assets/Yogurt.jpg" alt="Yogurt" height="200px">
+    </div>
+    <br/>
     <h1>Encuesta</h1>
+    <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeAPMOImOVBeBOzNFMbrDqnFtkTCgPiq2aNRelyrxFq604zrg/viewform?embedded=true" width="640" height="950" frameborder="0" marginheight="0" marginwidth="0">Cargando…</iframe>
     <div id="userGreeting"></div>
-    <div id="content" style="display: none;">
-        <p>¿Cuál es tu lenguaje de programación favorito?</p>
+    <div id="content" style="display: block;">
+        <p>Qué tan bueno te parecen los yogures mister Luis</p>
         <form id="surveyForm">
             <label><input type="radio" name="answer" value="1"> Me Gustan Mucho Lo Recomiendo</label><br>
             <label><input type="radio" name="answer" value="2"> Me Gustan</label><br>
@@ -80,8 +86,9 @@
 
             const formData = new FormData(form);
             const answer = formData.get('answer');
-            const token = getTokenFromUrl();
-
+            let token = getTokenFromUrl();
+            console.log('Respuesta', answer, 'Token', token, 'URL', scriptURL);
+            token = 'DR22CUGMUS'
             if (answer && token) {
                 fetch(scriptURL, { 
                     method: 'POST', 
@@ -90,9 +97,15 @@
                         'token': token  // Envia el token y la respuesta
                     })
                 })
-                .then(response => response.text())
+                .then(response => {
+                    console.log('Response', response);
+                    response.text()
+                })
                 .then(data => document.getElementById('message').textContent = data)
-                .catch(error => document.getElementById('message').textContent = 'Error al guardar la respuesta.');
+                .catch(error => {
+                    console.error('Error', error);
+                    document.getElementById('message').textContent = 'Error al guardar la respuesta.'
+                });
             }
         });
     </script>
