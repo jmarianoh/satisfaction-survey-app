@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta con Token</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h1 {
+            margin-top: 20px;
+        }
+        #content {
+            margin-top: 20px;
+        }
+        #message {
+            margin-top: 20px;
+        }   
+    </style>
+</head>
+<body>
+    <h1>Encuesta</h1>
+    <div id="userGreeting"></div>
+    <div id="content" style="display: none;">
+        <p>¿Cuál es tu lenguaje de programación favorito?</p>
+        <form id="surveyForm">
+            <label><input type="radio" name="answer" value="1"> Me Gustan Mucho Lo Recomiendo</label><br>
+            <label><input type="radio" name="answer" value="2"> Me Gustan</label><br>
+            <label><input type="radio" name="answer" value="3"> Lo Normal</label><br>
+            <label><input type="radio" name="answer" value="4"> No No me gustan</label><br><br>
+            <button type="submit">Guardar Respuesta</button>
+        </form>
+    </div>
+    <p id="message"></p>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbz5MF1-8_QmY7sMa0f5S7o-oam3oSqwDbMh5ZCBYj-v1WjwQFkYD4K6LNXuNWdOhdXg/exec';  // Reemplaza con tu ID de Google Apps Script
+
+        // Función para obtener el token de la URL
+        function getTokenFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('token');
+        }
+
+        // Función para verificar el token y obtener el nombre del usuario
+        function verifyToken() {
+            const token = getTokenFromUrl();
+            if (!token) {
+                document.getElementById('message').textContent = 'Error: No se encontró un token en la URL. No puedes acceder a la encuesta.';
+                return;
+            }
+
+            fetch(`${scriptURL}?token=${token}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('message').textContent = data.error;
+                    } else {
+                        document.getElementById('userGreeting').textContent = `Hola, ${data.username}`;
+                        document.getElementById('content').style.display = 'block'; // Muestra el formulario
+                    }
+                })
+                .catch(error => document.getElementById('message').textContent = 'Error al verificar el token.');
+        }
+
+        // Llama a la función para verificar el token al cargar la página
+        verifyToken();
+
+        // Función para manejar el envío del formulario
+        const form = document.getElementById('surveyForm');
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const answer = formData.get('answer');
+            const token = getTokenFromUrl();
+
+            if (answer && token) {
+                fetch(scriptURL, { 
+                    method: 'POST', 
+                    body: new URLSearchParams({
+                        'answer': answer, 
+                        'token': token  // Envia el token y la respuesta
+                    })
+                })
+                .then(response => response.text())
+                .then(data => document.getElementById('message').textContent = data)
+                .catch(error => document.getElementById('message').textContent = 'Error al guardar la respuesta.');
+            }
+        });
+    </script>
+</body>
+</html>
